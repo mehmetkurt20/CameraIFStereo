@@ -263,19 +263,35 @@ void process_img(void)
 //#define MXC_GPIO_PORT_OUT2 MXC_GPIO3
 //#define MXC_GPIO_PIN_OUT2 MXC_GPIO_PIN_0
 
-#define MXC_GPIO_PORT_INTERRUPT_IN2 MXC_GPIO2
-#define MXC_GPIO_PIN_INTERRUPT_IN2 MXC_GPIO_PIN_6
 
-#define MXC_GPIO_PORT_INTERRUPT_STATUS2 MXC_GPIO3
-#define MXC_GPIO_PIN_INTERRUPT_STATUS2 MXC_GPIO_PIN_0
 
+//CAM1 ON/OFF Connections
+
+//Push Button 2 Interrupt In 
 #define MXC_GPIO_PORT_INTERRUPT_IN MXC_GPIO2
 #define MXC_GPIO_PIN_INTERRUPT_IN MXC_GPIO_PIN_7
 
+//GPIO PIN FOR CAM1 ON/OFF (Connected to PWDN pin of camera)
 #define MXC_GPIO_PORT_INTERRUPT_STATUS MXC_GPIO2
 #define MXC_GPIO_PIN_INTERRUPT_STATUS MXC_GPIO_PIN_4
 
+
+//CAM2 ON/OFF Connections
+
+//Push Button 1 Interrupt In
+#define MXC_GPIO_PORT_INTERRUPT_IN2 MXC_GPIO2
+#define MXC_GPIO_PIN_INTERRUPT_IN2 MXC_GPIO_PIN_6
+
+//GPIO PIN FOR CAM2 ON/OFF (Connected to PWDN pin of camera)
+#define MXC_GPIO_PORT_INTERRUPT_STATUS2 MXC_GPIO3
+#define MXC_GPIO_PIN_INTERRUPT_STATUS2 MXC_GPIO_PIN_0
+
 }
+
+
+// These are specific functions to call CAM1 and CAM2 seperately
+// OutClr(0) is to turn on the camera and OutSet(1) is to turn off the camera
+// Because of OVM7692; when PWDN pin gets 0, CAM is turning on.
 
 /* void cam1oncam2off(){
 
@@ -312,15 +328,7 @@ void cam1offcam2on(){
     MXC_GPIO_Config(&gpio_out2);
     MXC_GPIO_OutClr(gpio_out2.port, gpio_out2.mask);
 } */
-// *****************************************************************************
 
-
-/* volatile int buttonPressed = 0;
-bool isCamera1Active = true;
-
-int a;
-
-*/
 void gpio_isr(void *cbdata)
 {
     mxc_gpio_cfg_t *cfg = cbdata;
@@ -329,6 +337,7 @@ void gpio_isr(void *cbdata)
 
 int main(void)
 {   
+    //Pushbutton 1 is on and off cam1 settings 
     mxc_gpio_cfg_t gpio_interrupt;
     mxc_gpio_cfg_t gpio_interrupt_status;
     gpio_interrupt_status.port = MXC_GPIO_PORT_INTERRUPT_STATUS;
@@ -348,6 +357,7 @@ int main(void)
     MXC_GPIO_EnableInt(gpio_interrupt.port, gpio_interrupt.mask);
     NVIC_EnableIRQ(MXC_GPIO_GET_IRQ(MXC_GPIO_GET_IDX(MXC_GPIO_PORT_INTERRUPT_IN)));
 
+    //Pushbutton 2 is on and off cam2 settings
     mxc_gpio_cfg_t gpio_interrupt2;
     mxc_gpio_cfg_t gpio_interrupt_status2;
     gpio_interrupt_status2.port = MXC_GPIO_PORT_INTERRUPT_STATUS2;
